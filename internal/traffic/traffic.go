@@ -2,27 +2,33 @@ package traffic
 
 import (
 	"io"
-	"log"
 
 	"github.com/geziyor/geziyor"
 	"github.com/geziyor/geziyor/client"
 	wk "github.com/shezadkhan137/go-wkhtmltoimage"
 )
 
-func GetInfo(url string, w io.Writer) {
+type trafficGeter struct {
+}
+
+func New() *trafficGeter {
+	return &trafficGeter{}
+}
+
+func (t *trafficGeter) InfoYandex(url string, w io.Writer) {
 
 	geziyor.NewGeziyor(&geziyor.Options{
 		StartRequestsFunc: func(g *geziyor.Geziyor) {
 			g.GetRendered(url, g.Opt.ParseFunc)
 		},
 		ParseFunc: func(g *geziyor.Geziyor, r *client.Response) {
-			toImage(string(r.Body), w)
+			_ = t.toImage(string(r.Body), w)
 		},
 	}).Start()
 
 }
 
-func toImage(htmlString string, w io.Writer) {
+func (t *trafficGeter) toImage(htmlString string, w io.Writer) error {
 
 	wk.Init()
 	defer wk.Destroy()
@@ -34,12 +40,14 @@ func toImage(htmlString string, w io.Writer) {
 			EnableJavascript: false,
 		})
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	err = converter.Run(htmlString, w)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
+
+	return nil
 
 }
