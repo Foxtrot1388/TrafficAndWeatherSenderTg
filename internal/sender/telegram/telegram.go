@@ -33,3 +33,11 @@ func (tg *telegramBot) SendPhoto(name, text string, bytes []byte) error {
 	return err
 
 }
+
+func (tg *telegramBot) SendText(text string) error {
+
+	msg := tgbotapi.NewMessage(tg.chatID, text)
+	_, err := tg.bot.Send(msg)
+	return err
+
+}

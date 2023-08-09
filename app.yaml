@@ -1,4 +1,10 @@
-url: ""
-time: "00:00"
-chat_id: 0
-token_id: ""
+time_to_send: "00:00"
+telegram:
+  chat_id: 0
+  token_id: ""
+traffic:
+  url: ""
+weather:
+  lat: 0.000
+  lon: 0.000
+  timezone: ""

@@ -5,18 +5,42 @@ import (
 
 	"github.com/Foxtrot1388/TrafficAndWeatherSenderTg/internal/config"
 	"github.com/Foxtrot1388/TrafficAndWeatherSenderTg/internal/sender/telegram"
-	"github.com/Foxtrot1388/TrafficAndWeatherSenderTg/internal/traffic"
+	traffic "github.com/Foxtrot1388/TrafficAndWeatherSenderTg/internal/traffic/Yandex"
+	weather "github.com/Foxtrot1388/TrafficAndWeatherSenderTg/internal/weather/OpenMeteo"
 )
 
-func TestDoAll(t *testing.T) {
+func TestTrafficInfo(t *testing.T) {
 
 	cfg := config.Get()
 	trafficya := traffic.New()
-	sendertg, err := telegram.New(cfg.Token, cfg.ChatID)
+	sendertg, err := telegram.New(cfg.Telegram.Token, cfg.Telegram.ChatID)
 	if err != nil {
 		t.Error(err)
 	}
 
-	do(cfg, trafficya, sendertg)
+	err = sendTrafficInfo(cfg, trafficya, sendertg)
+	if err != nil {
+		t.Error(err)
+	}
+
+}
+
+func TestWeatherInfo(t *testing.T) {
+
+	cfg := config.Get()
+	weatherow, err := weather.New()
+	if err != nil {
+		t.Error(err)
+	}
+
+	sendertg, err := telegram.New(cfg.Telegram.Token, cfg.Telegram.ChatID)
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = sendWeatherInfo(cfg, weatherow, sendertg)
+	if err != nil {
+		t.Error(err)
+	}
 
 }

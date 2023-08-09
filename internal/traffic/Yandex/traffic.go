@@ -15,7 +15,7 @@ func New() *trafficGeter {
 	return &trafficGeter{}
 }
 
-func (t *trafficGeter) InfoYandex(url string, w io.Writer) {
+func (t *trafficGeter) Info(url string, w io.Writer) {
 
 	geziyor.NewGeziyor(&geziyor.Options{
 		StartRequestsFunc: func(g *geziyor.Geziyor) {
