@@ -20,6 +20,8 @@
 # Go workspace file
 go.work
 dev.yaml
+credentials.json
+token.json
 .idea/
 .vscode/
 .idea/workspace.xml
