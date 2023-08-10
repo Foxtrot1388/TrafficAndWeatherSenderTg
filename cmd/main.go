@@ -25,7 +25,8 @@ type trafficGeter interface {
 }
 
 type weatherGeter interface {
-	Info(ctx context.Context, timezone string, lat float64, lon float64, filter func(time.Time) bool) (*weather.WeatherInfo, error)
+	Info(ctx context.Context, loc *weather.Location, filter func(time.Time) bool) (*weather.WeatherInfo, error)
+	NewLocation(lat, lon float64, timezone string) (*weather.Location, error)
 }
 
 type taskGeter interface {
@@ -50,7 +51,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	taskg, err := task.New(context.Background())
+	taskg, err := task.New(context.TODO())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -136,10 +137,15 @@ func sendWeatherInfo(cfg *config.Config, weather weatherGeter, sendermes sender)
 
 	filter, err := filterWeather(cfg)
 	if err != nil {
-		return err
+		return errorFailWeather
 	}
 
-	result, err := weather.Info(context.Background(), cfg.Weather.Timezone, cfg.Weather.Lat, cfg.Weather.Lon, filter)
+	loc, err := weather.NewLocation(cfg.Weather.Lat, cfg.Weather.Lon, cfg.Weather.Timezone)
+	if err != nil {
+		return errorFailWeather
+	}
+
+	result, err := weather.Info(context.TODO(), loc, filter)
 	if err != nil {
 		return errorFailWeather
 	}

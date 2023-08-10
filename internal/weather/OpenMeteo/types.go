@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/hectormalot/omgo"
 )
 
 var wmoCodes = map[float64]string{
@@ -56,6 +58,11 @@ type hourlyinfo struct {
 	Temperature float64
 	WindSpeed   float64
 	Rain        float64
+}
+
+type Location struct {
+	Loc      *omgo.Location
+	Timezone string
 }
 
 func (w WeatherInfo) String() string {

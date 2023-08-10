@@ -22,12 +22,18 @@ func New() (*weatherGeter, error) {
 
 }
 
-func (w *weatherGeter) Info(ctx context.Context, timezone string, lat float64, lon float64, filter func(time.Time) bool) (*WeatherInfo, error) {
+func (w *weatherGeter) NewLocation(lat, lon float64, timezone string) (*Location, error) {
 
 	loc, err := omgo.NewLocation(lat, lon)
 	if err != nil {
 		return nil, err
 	}
+
+	return &Location{Loc: &loc, Timezone: timezone}, nil
+
+}
+
+func (w *weatherGeter) Info(ctx context.Context, loc *Location, filter func(time.Time) bool) (*WeatherInfo, error) {
 
 	// TODO forecast_days
 
@@ -35,12 +41,12 @@ func (w *weatherGeter) Info(ctx context.Context, timezone string, lat float64, l
 		TemperatureUnit:   "celsius",
 		WindspeedUnit:     "ms",
 		PrecipitationUnit: "mm",
-		Timezone:          timezone,
+		Timezone:          loc.Timezone,
 		PastDays:          0,
 		HourlyMetrics:     []string{"temperature_2m,windspeed_10m,rain,weathercode"},
 	}
 
-	resultforecst, err := w.client.Forecast(ctx, loc, &opts)
+	resultforecst, err := w.client.Forecast(ctx, *loc.Loc, &opts)
 	if err != nil {
 		return nil, err
 	}
