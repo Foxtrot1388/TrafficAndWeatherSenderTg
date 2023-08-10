@@ -274,6 +274,8 @@ github.com/hashicorp/memberlist v0.2.2/go.mod h1:MS2lj3INKhZjWNqd3N0m3J+Jxf3DAOn
 github.com/hashicorp/serf v0.9.5/go.mod h1:UWDWwZeL5cuWDJdl0C6wrvrUwEqtQ4ZKBKKENpqIUyk=
 github.com/hectormalot/omgo v0.1.2 h1:OIwSV21Mp8gn/j2kO/fRN+9Md+9xjVZad2uxHGlLrsw=
 github.com/hectormalot/omgo v0.1.2/go.mod h1:pIxNXqcLbwsjWib1+kR6RRmqWB9sxRvgggjnTasTDkc=
+github.com/hectormalot/omgo v0.1.3 h1:GquvcIljdNUo207RFIhXABmL2iBkBggBk2mY4swX3AA=
+github.com/hectormalot/omgo v0.1.3/go.mod h1:pIxNXqcLbwsjWib1+kR6RRmqWB9sxRvgggjnTasTDkc=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
 github.com/hudl/fargo v1.4.0/go.mod h1:9Ai6uvFy5fQNq6VPKtg+Ceq1+eTY4nKUlR2JElEOcDo=
 github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=

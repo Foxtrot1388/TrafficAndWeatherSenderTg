@@ -20,6 +20,7 @@ type Config struct {
 	Weather struct {
 		Lat      float64 `yaml:"lat"`
 		Lon      float64 `yaml:"lon"`
+		Time     string  `yaml:"time"`
 		Timezone string  `yaml:"timezone"` // https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 	} `yaml:"weather"`
 }
@@ -43,7 +44,7 @@ func mustConfig() string {
 
 	filename := flag.String(
 		"cfg",
-		"dev.yaml",
+		"app.yaml",
 		"config file",
 	)
 

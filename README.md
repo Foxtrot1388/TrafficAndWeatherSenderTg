@@ -7,7 +7,7 @@
 DONE
 
 **Погода:**\
-_TODO_
+Через Open meteo (клиент [omgo](github.com/hectormalot/omgo))
 
 **Задачи в гугл календаре:**\
 _TODO_

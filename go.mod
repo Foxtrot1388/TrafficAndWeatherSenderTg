@@ -2,7 +2,10 @@ module github.com/Foxtrot1388/TrafficAndWeatherSenderTg
 
 go 1.19
 
-require github.com/shezadkhan137/go-wkhtmltoimage v0.0.0-20191029041329-db2a8e59cfaf
+require (
+	github.com/hectormalot/omgo v0.1.3
+	github.com/shezadkhan137/go-wkhtmltoimage v0.0.0-20191029041329-db2a8e59cfaf
+)
 
 require (
 	cloud.google.com/go/compute v1.23.0 // indirect
@@ -29,7 +32,6 @@ require (
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.2.5 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.0 // indirect
-	github.com/hectormalot/omgo v0.1.2 // indirect
 	github.com/ilyakaznacheev/cleanenv v1.5.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/josharian/intern v1.0.0 // indirect

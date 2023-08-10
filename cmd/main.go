@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -24,7 +25,7 @@ type trafficGeter interface {
 }
 
 type weatherGeter interface {
-	Info(ctx context.Context, timezone string, lat, lon float64) error
+	Info(ctx context.Context, timezone string, lat float64, lon float64, timeAt int, timeTo int) (*weather.WeatherInfo, error)
 }
 
 type taskGeter interface {
@@ -133,11 +134,24 @@ func sendTrafficInfo(cfg *config.Config, traffic trafficGeter, sendermes sender)
 
 func sendWeatherInfo(cfg *config.Config, weather weatherGeter, sendermes sender) error {
 
-	if err := weather.Info(context.Background(), cfg.Weather.Timezone, cfg.Weather.Lat, cfg.Weather.Lon); err != nil {
+	timesplit := strings.Split(cfg.Weather.Time, "-")
+	timeAt, err := strconv.Atoi(strings.Split(timesplit[0], ":")[0])
+	if err != nil {
+		return err
+	}
+	timeTo, err := strconv.Atoi(strings.Split(timesplit[1], ":")[0])
+	if err != nil {
+		return err
+	}
+
+	result, err := weather.Info(context.Background(), cfg.Weather.Timezone, cfg.Weather.Lat, cfg.Weather.Lon, timeAt, timeTo)
+	if err != nil {
 		return errorFailWeather
 	}
 
-	// TODO
+	if err = sendermes.SendText(result.String()); err != nil {
+		return err
+	}
 
 	return nil
 
@@ -152,10 +166,10 @@ func sendTaskInfo(cfg *config.Config, task taskGeter, sendermes sender) error {
 
 	if len(result) > 0 {
 		sb := strings.Builder{}
-		sb.WriteString("Список задач на сегодня:\r\n")
+		sb.WriteString("Список задач на сегодня:")
 		for i := 0; i < len(result); i++ {
-			sb.WriteString(string(result[i].String()))
 			sb.WriteString("\r\n")
+			sb.WriteString(result[i].String())
 		}
 		if err = sendermes.SendText(sb.String()); err != nil {
 			return err

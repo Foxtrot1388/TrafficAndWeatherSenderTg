@@ -1,4 +1,4 @@
-time_to_send: "00:00"
+time_to_send: "08:00"
 telegram:
   chat_id: 0
   token_id: ""
@@ -7,4 +7,5 @@ traffic:
 weather:
   lat: 0.000
   lon: 0.000
-  timezone: ""
+  time: "09:00-20:00"
+  timezone: "Asia/Vladivostok"
