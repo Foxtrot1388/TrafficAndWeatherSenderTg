@@ -25,7 +25,7 @@ type trafficGeter interface {
 }
 
 type weatherGeter interface {
-	Info(ctx context.Context, timezone string, lat float64, lon float64, timeAt int, timeTo int) (*weather.WeatherInfo, error)
+	Info(ctx context.Context, timezone string, lat float64, lon float64, filter func(time.Time) bool) (*weather.WeatherInfo, error)
 }
 
 type taskGeter interface {
@@ -134,17 +134,12 @@ func sendTrafficInfo(cfg *config.Config, traffic trafficGeter, sendermes sender)
 
 func sendWeatherInfo(cfg *config.Config, weather weatherGeter, sendermes sender) error {
 
-	timesplit := strings.Split(cfg.Weather.Time, "-")
-	timeAt, err := strconv.Atoi(strings.Split(timesplit[0], ":")[0])
-	if err != nil {
-		return err
-	}
-	timeTo, err := strconv.Atoi(strings.Split(timesplit[1], ":")[0])
+	filter, err := filterWeather(cfg)
 	if err != nil {
 		return err
 	}
 
-	result, err := weather.Info(context.Background(), cfg.Weather.Timezone, cfg.Weather.Lat, cfg.Weather.Lon, timeAt, timeTo)
+	result, err := weather.Info(context.Background(), cfg.Weather.Timezone, cfg.Weather.Lat, cfg.Weather.Lon, filter)
 	if err != nil {
 		return errorFailWeather
 	}
@@ -154,6 +149,27 @@ func sendWeatherInfo(cfg *config.Config, weather weatherGeter, sendermes sender)
 	}
 
 	return nil
+
+}
+
+func filterWeather(cfg *config.Config) (func(time.Time) bool, error) {
+
+	curday := time.Now().Day()
+	timesplit := strings.Split(cfg.Weather.Time, "-")
+	timeAt, err := strconv.Atoi(strings.Split(timesplit[0], ":")[0])
+	if err != nil {
+		return nil, err
+	}
+	timeTo, err := strconv.Atoi(strings.Split(timesplit[1], ":")[0])
+	if err != nil {
+		return nil, err
+	}
+
+	filter := func(t time.Time) bool {
+		return t.Day() == curday && t.Hour() >= timeAt && t.Hour() <= timeTo
+	}
+
+	return filter, nil
 
 }
 

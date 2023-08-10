@@ -22,7 +22,7 @@ func New() (*weatherGeter, error) {
 
 }
 
-func (w *weatherGeter) Info(ctx context.Context, timezone string, lat float64, lon float64, timeAt int, timeTo int) (*WeatherInfo, error) { // TODO return value
+func (w *weatherGeter) Info(ctx context.Context, timezone string, lat float64, lon float64, filter func(time.Time) bool) (*WeatherInfo, error) {
 
 	loc, err := omgo.NewLocation(lat, lon)
 	if err != nil {
@@ -53,10 +53,7 @@ func (w *weatherGeter) Info(ctx context.Context, timezone string, lat float64, l
 	result.CurrentWeather.WindSpeed = resultforecst.CurrentWeather.WindSpeed
 	result.CurrentWeather.WeatherInfo = wmoCodes[resultforecst.CurrentWeather.WeatherCode]
 
-	curday := time.Now().Day()
-	index := filter(resultforecst.HourlyTimes, func(t time.Time) bool {
-		return t.Day() == curday && t.Hour() >= timeAt && t.Hour() <= timeTo
-	})
+	index := filterFunc(resultforecst.HourlyTimes, filter)
 	result.Hourly = make([]hourlyinfo, len(index))
 	for p, i := range index {
 		var value hourlyinfo
@@ -72,7 +69,7 @@ func (w *weatherGeter) Info(ctx context.Context, timezone string, lat float64, l
 
 }
 
-func filter(vs []time.Time, f func(time.Time) bool) []int {
+func filterFunc(vs []time.Time, f func(time.Time) bool) []int {
 	vsf := make([]int, 0)
 	for i, v := range vs {
 		if f(v) {
