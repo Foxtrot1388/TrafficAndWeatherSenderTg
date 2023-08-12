@@ -72,46 +72,26 @@ func do(cfg *config.Config, traffic trafficGeter, weather weatherGeter, task tas
 	log.Println("The time has come")
 	done := make(chan struct{})
 
-	go func() {
-		err := sendTrafficInfo(cfg, traffic, sendermes)
-		if err != nil {
-			if errors.Is(err, errorFailTraffic) {
-				log.Println(err.Error())
-			} else {
-				log.Fatal(err)
-			}
-		}
-		done <- struct{}{}
-	}()
-
-	go func() {
-		err := sendWeatherInfo(cfg, weather, sendermes)
-		if err != nil {
-			if errors.Is(err, errorFailWeather) {
-				log.Println(err.Error())
-			} else {
-				log.Fatal(err)
-			}
-		}
-		done <- struct{}{}
-	}()
-
-	go func() {
-		err := sendTaskInfo(cfg, task, sendermes)
-		if err != nil {
-			if errors.Is(err, errorFailTask) {
-				log.Println(err.Error())
-			} else {
-				log.Fatal(err)
-			}
-		}
-		done <- struct{}{}
-	}()
+	go startDo(func() error { return sendTrafficInfo(cfg, traffic, sendermes) }, done, errorFailTraffic)
+	go startDo(func() error { return sendWeatherInfo(cfg, weather, sendermes) }, done, errorFailWeather)
+	//go startDo(func()error{return sendTaskInfo(cfg, task, sendermes)}, done, errorFailTask)
 
 	<-done
 	<-done
-	<-done
+	//<-done
 
+}
+
+func startDo(job func() error, done chan struct{}, errorFail error) {
+	err := job()
+	if err != nil {
+		if errors.Is(err, errorFail) {
+			log.Println(err.Error())
+		} else {
+			log.Fatal(err)
+		}
+	}
+	done <- struct{}{}
 }
 
 func sendTrafficInfo(cfg *config.Config, traffic trafficGeter, sendermes sender) error {
