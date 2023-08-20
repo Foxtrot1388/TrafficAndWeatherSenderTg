@@ -52,9 +52,9 @@ func main() {
 		log.Fatal(err)
 	}
 	taskg, err := task.New(context.TODO())
-	if err != nil {
+	/*if err != nil {
 		log.Fatal(err)
-	}
+	}*/
 	sendertg, err := telegram.New(cfg.Telegram.Token, cfg.Telegram.ChatID)
 	if err != nil {
 		log.Fatal(err)
@@ -64,6 +64,7 @@ func main() {
 
 	s := gocron.NewScheduler(time.UTC)
 	s.Every(1).Day().At(cfg.TimeToSend).Do(func() { do(cfg, trafficya, weatherom, taskg, sendertg) })
+	s.StartBlocking()
 
 }
 

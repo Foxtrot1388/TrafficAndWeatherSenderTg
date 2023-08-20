@@ -1,13 +1,13 @@
 # TrafficAndWeatherSenderTg
 
-Отправка информации о пробках, погоде и задачах в календаре в телеграмм по расписанию ([gocron](github.com/go-co-op/gocron))
+Отправка информации о пробках, погоде и задачах в календаре в телеграмм по расписанию ([gocron](https://github.com/go-co-op/gocron))
 
 **Пробки:**\
-Через js scraping яндекс карты в [geziyor](github.com/geziyor/geziyor) и конвертации html в картинку через [wkhtmltoimage](github.com/shezadkhan137/go-wkhtmltoimage)\
+Через js scraping яндекс карты в [geziyor](https://github.com/geziyor/geziyor) и конвертации html в картинку через [wkhtmltoimage](https://github.com/shezadkhan137/go-wkhtmltoimage)\
 DONE
 
 **Погода:**\
-Через Open meteo (клиент [omgo](github.com/hectormalot/omgo))\
+Через Open meteo (клиент [omgo](https://github.com/hectormalot/omgo))\
 DONE
 
 **Задачи в гугл календаре:**\
