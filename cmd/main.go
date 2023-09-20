@@ -30,7 +30,7 @@ type weatherGeter interface {
 }
 
 type taskGeter interface {
-	Info() ([]task.TaskResult, error)
+	Info(calendarid string) ([]task.TaskResult, error)
 }
 
 type sender interface {
@@ -51,10 +51,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	taskg, err := task.New(context.TODO())
-	/*if err != nil {
+	taskg, err := task.New(context.TODO(), cfg.Task.CredentialsFile)
+	if err != nil {
 		log.Fatal(err)
-	}*/
+	}
 	sendertg, err := telegram.New(cfg.Telegram.Token, cfg.Telegram.ChatID)
 	if err != nil {
 		log.Fatal(err)
@@ -75,11 +75,11 @@ func do(cfg *config.Config, traffic trafficGeter, weather weatherGeter, task tas
 
 	go startDo(func() error { return sendTrafficInfo(cfg, traffic, sendermes) }, done, errorFailTraffic)
 	go startDo(func() error { return sendWeatherInfo(cfg, weather, sendermes) }, done, errorFailWeather)
-	//go startDo(func()error{return sendTaskInfo(cfg, task, sendermes)}, done, errorFailTask)
+	go startDo(func() error { return sendTaskInfo(cfg, task, sendermes) }, done, errorFailTask)
 
 	<-done
 	<-done
-	//<-done
+	<-done
 
 }
 
@@ -162,7 +162,7 @@ func filterWeather(cfg *config.Config) (func(time.Time) bool, error) {
 
 func sendTaskInfo(cfg *config.Config, task taskGeter, sendermes sender) error {
 
-	result, err := task.Info()
+	result, err := task.Info(cfg.Task.Caledndarid)
 	if err != nil {
 		return errorFailTask
 	}

@@ -9,3 +9,6 @@ weather:
   lon: 0.000
   time: "09:00-20:00"
   timezone: "Asia/Vladivostok"
+task:
+  calendarid: ""
+  credentialsfile : "my-calendar.json"

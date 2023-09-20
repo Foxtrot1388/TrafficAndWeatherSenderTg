@@ -23,6 +23,10 @@ type Config struct {
 		Time     string  `yaml:"time"`
 		Timezone string  `yaml:"timezone"` // https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 	} `yaml:"weather"`
+	Task struct {
+		Caledndarid     string `yaml:"calendarid"`
+		CredentialsFile string `yaml:"credentialsfile"`
+	} `yaml:"task"`
 }
 
 var (
