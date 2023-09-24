@@ -23,5 +23,7 @@ RUN apt install -f -y ./wkhtmltox_0.12.6.1-2.bullseye_amd64.deb
 
 COPY --from=builder /usr/local/go/src/app.exe /
 COPY --from=builder /usr/local/go/src/app.yaml /
+COPY --from=builder /usr/local/go/src/client_secret.json /
+COPY --from=builder /usr/local/go/src/token.json /
 
 CMD ["/app.exe"]
