@@ -11,4 +11,6 @@ weather:
   timezone: "Asia/Vladivostok"
 task:
   calendarid: ""
-  credentialsfile : "my-calendar.json"
+  credentialsfile: "my-calendar.json"
+  clientsecret: "client_secret.json"
+  token: "token.json"

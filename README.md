@@ -10,5 +10,5 @@ DONE
 Через Open meteo (клиент [omgo](https://github.com/hectormalot/omgo))\
 DONE
 
-**Задачи в гугл календаре:**\
-_TODO_
+**События в календаре и списках задач (Google):**\
+DONE (beta)

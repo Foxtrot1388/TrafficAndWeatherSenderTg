@@ -26,6 +26,8 @@ type Config struct {
 	Task struct {
 		Caledndarid     string `yaml:"calendarid"`
 		CredentialsFile string `yaml:"credentialsfile"`
+		Clientsecret    string `yaml:"clientsecret"`
+		Token           string `yaml:"token"`
 	} `yaml:"task"`
 }
 

@@ -21,6 +21,8 @@
 go.work
 dev.yaml
 my-calendar.json
+client_secret.json
+token.json
 .idea/
 .vscode/
 .idea/workspace.xml
