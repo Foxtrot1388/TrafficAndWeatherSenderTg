@@ -72,6 +72,7 @@ func do(cfg *config.Config, traffic trafficGeter, weather weatherGeter, task tas
 
 	log.Println("The time has come")
 	done := make(chan struct{})
+	defer close(done)
 
 	go startDo(func() error { return sendTrafficInfo(cfg, traffic, sendermes) }, done, errorFailTraffic)
 	go startDo(func() error { return sendWeatherInfo(cfg, weather, sendermes) }, done, errorFailWeather)
@@ -83,7 +84,7 @@ func do(cfg *config.Config, traffic trafficGeter, weather weatherGeter, task tas
 
 }
 
-func startDo(job func() error, done chan struct{}, errorFail error) {
+func startDo(job func() error, done chan<- struct{}, errorFail error) {
 	err := job()
 	if err != nil {
 		if errors.Is(err, errorFail) {
