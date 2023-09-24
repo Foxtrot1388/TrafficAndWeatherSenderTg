@@ -51,7 +51,7 @@ func TestCalendar(t *testing.T) {
 
 	cfg := config.Get()
 
-	taskg, err := task.New(context.Background(), cfg.Task.CredentialsFile, cfg.Task.Token, cfg.Task.Clientsecret)
+	taskg, err := task.New(context.Background(), cfg.Task.Token, cfg.Task.Clientsecret)
 	if err != nil {
 		t.Error(err)
 	}

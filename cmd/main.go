@@ -51,7 +51,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	taskg, err := task.New(context.TODO(), cfg.Task.CredentialsFile, cfg.Task.Token, cfg.Task.Clientsecret)
+	taskg, err := task.New(context.TODO(), cfg.Task.Token, cfg.Task.Clientsecret)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -24,10 +24,9 @@ type Config struct {
 		Timezone string  `yaml:"timezone"` // https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 	} `yaml:"weather"`
 	Task struct {
-		Caledndarid     string `yaml:"calendarid"`
-		CredentialsFile string `yaml:"credentialsfile"`
-		Clientsecret    string `yaml:"clientsecret"`
-		Token           string `yaml:"token"`
+		Caledndarid  string `yaml:"calendarid"`
+		Clientsecret string `yaml:"clientsecret"`
+		Token        string `yaml:"token"`
 	} `yaml:"task"`
 }
 

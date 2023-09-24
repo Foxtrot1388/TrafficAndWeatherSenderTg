@@ -35,19 +35,14 @@ func tokenFromFile(file string) (*oauth2.Token, error) {
 	return tok, err
 }
 
-func New(ctx context.Context, credentialsfile, tokenfile, clientsecret string) (*GCalendar, error) {
-
-	calendarService, err := calendar.NewService(ctx, option.WithCredentialsFile("../"+credentialsfile))
-	if err != nil {
-		return nil, err
-	}
+func New(ctx context.Context, tokenfile, clientsecret string) (*GCalendar, error) {
 
 	b, err := os.ReadFile("../" + clientsecret)
 	if err != nil {
 		return nil, err
 	}
 
-	conf, err := google.ConfigFromJSON(b, tasks.TasksReadonlyScope)
+	conf, err := google.ConfigFromJSON(b, tasks.TasksReadonlyScope, calendar.CalendarReadonlyScope)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +50,11 @@ func New(ctx context.Context, credentialsfile, tokenfile, clientsecret string) (
 	token, _ := tokenFromFile("../" + tokenfile)
 
 	taskService, err := tasks.NewService(ctx, option.WithTokenSource(conf.TokenSource(ctx, token)))
+	if err != nil {
+		return nil, err
+	}
 
+	calendarService, err := calendar.NewService(ctx, option.WithTokenSource(conf.TokenSource(ctx, token)))
 	if err != nil {
 		return nil, err
 	}
