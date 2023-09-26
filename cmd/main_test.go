@@ -20,7 +20,7 @@ func TestTrafficInfo(t *testing.T) {
 		t.Error(err)
 	}
 
-	err = sendTrafficInfo(cfg, trafficya, sendertg)
+	err = sendTrafficInfo(context.Background(), cfg, trafficya, sendertg)
 	if err != nil {
 		t.Error(err)
 	}
@@ -40,7 +40,7 @@ func TestWeatherInfo(t *testing.T) {
 		t.Error(err)
 	}
 
-	err = sendWeatherInfo(cfg, weatherow, sendertg)
+	err = sendWeatherInfo(context.Background(), cfg, weatherow, sendertg)
 	if err != nil {
 		t.Error(err)
 	}
@@ -61,7 +61,7 @@ func TestCalendar(t *testing.T) {
 		t.Error(err)
 	}
 
-	err = sendTaskInfo(cfg, taskg, sendertg)
+	err = sendTaskInfo(context.Background(), cfg, taskg, sendertg)
 	if err != nil {
 		t.Error(err)
 	}

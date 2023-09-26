@@ -93,14 +93,14 @@ func New(ctx context.Context, tokenfile, clientsecret string) (*GCalendar, error
 
 }
 
-func (g *GCalendar) Info(calendarid string) ([]TaskResult, error) {
+func (g *GCalendar) Info(ctx context.Context, calendarid string) ([]TaskResult, error) {
 
-	errgr, ctx := errgroup.WithContext(context.Background())
+	errgr, ctxerr := errgroup.WithContext(ctx)
 
 	resultcal := make(chan TaskResult)
 	errgr.Go(func() error {
 		defer close(resultcal)
-		if err := g.infoCal(ctx, calendarid, resultcal); err != nil {
+		if err := g.infoCal(ctxerr, calendarid, resultcal); err != nil {
 			return err
 		}
 		return nil
@@ -109,7 +109,7 @@ func (g *GCalendar) Info(calendarid string) ([]TaskResult, error) {
 	resulttask := make(chan TaskResult)
 	errgr.Go(func() error {
 		defer close(resulttask)
-		if err := g.infoTasks(ctx, resulttask); err != nil {
+		if err := g.infoTasks(ctxerr, resulttask); err != nil {
 			return err
 		}
 		return nil
@@ -137,7 +137,7 @@ func (g *GCalendar) infoCal(ctx context.Context, calendarid string, out chan<- T
 	tend := time.Date(curtime.Year(), curtime.Month(), curtime.Day(), 23, 59, 59, 59, curtime.Location()).Format(time.RFC3339)
 
 	events, err := g.calendarService.Events.List(calendarid).ShowDeleted(false).
-		SingleEvents(true).TimeMin(tstart).TimeMax(tend).MaxResults(10).OrderBy("startTime").Do()
+		SingleEvents(true).TimeMin(tstart).TimeMax(tend).MaxResults(10).OrderBy("startTime").Context(ctx).Do()
 	if err != nil {
 		return err
 	}
@@ -166,7 +166,7 @@ func (g *GCalendar) infoCal(ctx context.Context, calendarid string, out chan<- T
 
 func (g *GCalendar) infoTasks(ctx context.Context, out chan<- TaskResult) error {
 
-	tasklists, err := g.taskService.Tasklists.List().Do()
+	tasklists, err := g.taskService.Tasklists.List().Context(ctx).Do()
 	if err != nil {
 		return err
 	}
@@ -179,7 +179,7 @@ func (g *GCalendar) infoTasks(ctx context.Context, out chan<- TaskResult) error 
 	for _, tasklist := range tasklists.Items {
 
 		events, err := g.taskService.Tasks.List(tasklist.Id).ShowCompleted(false).
-			ShowDeleted(false).ShowHidden(false).DueMin(tstart).DueMax(tend).Do()
+			ShowDeleted(false).ShowHidden(false).DueMin(tstart).DueMax(tend).Context(ctx).Do()
 		if err != nil {
 			return err
 		}

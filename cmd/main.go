@@ -21,7 +21,7 @@ import (
 )
 
 type trafficGeter interface {
-	Info(url string, w io.Writer)
+	Info(ctx context.Context, url string, w io.Writer)
 }
 
 type weatherGeter interface {
@@ -30,7 +30,7 @@ type weatherGeter interface {
 }
 
 type taskGeter interface {
-	Info(calendarid string) ([]task.TaskResult, error)
+	Info(ctx context.Context, calendarid string) ([]task.TaskResult, error)
 }
 
 type sender interface {
@@ -38,45 +38,68 @@ type sender interface {
 	SendText(text string) error
 }
 
-var errorFailWeather = errors.New("failed to get weather information")
-var errorFailTraffic = errors.New("failed to get traffic information")
-var errorFailTask = errors.New("failed to get task information")
+type application struct {
+	Taskapp    taskGeter
+	Senderapp  sender
+	Weatherapp weatherGeter
+	Trafficapp trafficGeter
+}
 
 func main() {
 
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	cfg := config.Get()
+	app := getApp(cfg)
+
+	s := gocron.NewScheduler(time.UTC)
+	s.Every(1).Day().At(cfg.TimeToSend).Do(func() { do(context.Background(), cfg, app) })
+	s.StartBlocking()
+
+}
+
+func getApp(cfg *config.Config) *application {
+
 	trafficya := traffic.New()
+
 	weatherom, err := weather.New()
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	taskg, err := task.New(context.TODO(), cfg.Task.Token, cfg.Task.Clientsecret)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	sendertg, err := telegram.New(cfg.Telegram.Token, cfg.Telegram.ChatID)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// TODO context
-
-	s := gocron.NewScheduler(time.UTC)
-	s.Every(1).Day().At(cfg.TimeToSend).Do(func() { do(cfg, trafficya, weatherom, taskg, sendertg) })
-	s.StartBlocking()
+	return &application{Taskapp: taskg, Trafficapp: trafficya, Weatherapp: weatherom, Senderapp: sendertg}
 
 }
 
-func do(cfg *config.Config, traffic trafficGeter, weather weatherGeter, task taskGeter, sendermes sender) {
+func do(ctx context.Context, cfg *config.Config, app *application) {
 
 	log.Println("The time has come")
 	done := make(chan struct{})
 	defer close(done)
 
-	go startDo(func() error { return sendTrafficInfo(cfg, traffic, sendermes) }, done, errorFailTraffic)
-	go startDo(func() error { return sendWeatherInfo(cfg, weather, sendermes) }, done, errorFailWeather)
-	go startDo(func() error { return sendTaskInfo(cfg, task, sendermes) }, done, errorFailTask)
+	go func() {
+		startDo(func() error { return sendTrafficInfo(ctx, cfg, app.Trafficapp, app.Senderapp) })
+		done <- struct{}{}
+	}()
+
+	go func() {
+		startDo(func() error { return sendWeatherInfo(ctx, cfg, app.Weatherapp, app.Senderapp) })
+		done <- struct{}{}
+	}()
+
+	go func() {
+		startDo(func() error { return sendTaskInfo(ctx, cfg, app.Taskapp, app.Senderapp) })
+		done <- struct{}{}
+	}()
 
 	<-done
 	<-done
@@ -84,24 +107,19 @@ func do(cfg *config.Config, traffic trafficGeter, weather weatherGeter, task tas
 
 }
 
-func startDo(job func() error, done chan<- struct{}, errorFail error) {
+func startDo(job func() error) {
 	err := job()
 	if err != nil {
-		if errors.Is(err, errorFail) {
-			log.Println(err.Error())
-		} else {
-			log.Fatal(err)
-		}
+		log.Println(err.Error())
 	}
-	done <- struct{}{}
 }
 
-func sendTrafficInfo(cfg *config.Config, traffic trafficGeter, sendermes sender) error {
+func sendTrafficInfo(ctx context.Context, cfg *config.Config, traffic trafficGeter, sendermes sender) error {
 
 	buf := bytes.NewBuffer([]byte{})
-	traffic.Info(cfg.Traffic.URL, buf)
+	traffic.Info(ctx, cfg.Traffic.URL, buf)
 	if buf.Len() == 0 {
-		return errorFailTraffic
+		return errors.New("failed to get traffic information")
 	}
 
 	curtime := time.Now()
@@ -115,21 +133,21 @@ func sendTrafficInfo(cfg *config.Config, traffic trafficGeter, sendermes sender)
 
 }
 
-func sendWeatherInfo(cfg *config.Config, weather weatherGeter, sendermes sender) error {
+func sendWeatherInfo(ctx context.Context, cfg *config.Config, weather weatherGeter, sendermes sender) error {
 
 	filter, err := filterWeather(cfg)
 	if err != nil {
-		return errorFailWeather
+		return err
 	}
 
 	loc, err := weather.NewLocation(cfg.Weather.Lat, cfg.Weather.Lon, cfg.Weather.Timezone)
 	if err != nil {
-		return errorFailWeather
+		return err
 	}
 
-	result, err := weather.Info(context.TODO(), loc, filter)
+	result, err := weather.Info(ctx, loc, filter)
 	if err != nil {
-		return errorFailWeather
+		return err
 	}
 
 	if err = sendermes.SendText(result.String()); err != nil {
@@ -161,11 +179,11 @@ func filterWeather(cfg *config.Config) (func(time.Time) bool, error) {
 
 }
 
-func sendTaskInfo(cfg *config.Config, task taskGeter, sendermes sender) error {
+func sendTaskInfo(ctx context.Context, cfg *config.Config, task taskGeter, sendermes sender) error {
 
-	result, err := task.Info(cfg.Task.Caledndarid)
+	result, err := task.Info(ctx, cfg.Task.Caledndarid)
 	if err != nil {
-		return errorFailTask
+		return err
 	}
 
 	if len(result) > 0 {

@@ -1,6 +1,7 @@
 package traffic
 
 import (
+	"context"
 	"io"
 
 	"github.com/geziyor/geziyor"
@@ -15,20 +16,24 @@ func New() *trafficGeter {
 	return &trafficGeter{}
 }
 
-func (t *trafficGeter) Info(url string, w io.Writer) {
+func (t *trafficGeter) Info(ctx context.Context, url string, w io.Writer) {
 
 	geziyor.NewGeziyor(&geziyor.Options{
 		StartRequestsFunc: func(g *geziyor.Geziyor) {
 			g.GetRendered(url, g.Opt.ParseFunc)
 		},
 		ParseFunc: func(g *geziyor.Geziyor, r *client.Response) {
-			_ = t.toImage(string(r.Body), w)
+			_ = t.toImage(ctx, string(r.Body), w)
 		},
 	}).Start()
 
 }
 
-func (t *trafficGeter) toImage(htmlString string, w io.Writer) error {
+func (t *trafficGeter) toImage(ctx context.Context, htmlString string, w io.Writer) error {
+
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 
 	wk.Init()
 	defer wk.Destroy()
