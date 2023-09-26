@@ -100,7 +100,7 @@ func (g *GCalendar) Info(calendarid string) ([]TaskResult, error) {
 	resultcal := make(chan TaskResult)
 	errgr.Go(func() error {
 		defer close(resultcal)
-		if err := g.infoCal(calendarid, resultcal, ctx); err != nil {
+		if err := g.infoCal(ctx, calendarid, resultcal); err != nil {
 			return err
 		}
 		return nil
@@ -109,7 +109,7 @@ func (g *GCalendar) Info(calendarid string) ([]TaskResult, error) {
 	resulttask := make(chan TaskResult)
 	errgr.Go(func() error {
 		defer close(resulttask)
-		if err := g.infoTasks(resulttask, ctx); err != nil {
+		if err := g.infoTasks(ctx, resulttask); err != nil {
 			return err
 		}
 		return nil
@@ -130,7 +130,7 @@ func (g *GCalendar) Info(calendarid string) ([]TaskResult, error) {
 
 }
 
-func (g *GCalendar) infoCal(calendarid string, out chan<- TaskResult, ctx context.Context) error {
+func (g *GCalendar) infoCal(ctx context.Context, calendarid string, out chan<- TaskResult) error {
 
 	curtime := time.Now()
 	tstart := time.Date(curtime.Year(), curtime.Month(), curtime.Day(), 0, 0, 0, 0, curtime.Location()).Format(time.RFC3339)
@@ -164,7 +164,7 @@ func (g *GCalendar) infoCal(calendarid string, out chan<- TaskResult, ctx contex
 
 }
 
-func (g *GCalendar) infoTasks(out chan<- TaskResult, ctx context.Context) error {
+func (g *GCalendar) infoTasks(ctx context.Context, out chan<- TaskResult) error {
 
 	tasklists, err := g.taskService.Tasklists.List().Do()
 	if err != nil {

@@ -17,7 +17,7 @@ FROM debian:11
 RUN apt update
 RUN apt -y install wget
 RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-RUN apt install -f -y ./google-chrome-stable_current_amd64.deb
+RUN apt install --fix-missing -y ./google-chrome-stable_current_amd64.deb
 RUN wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.bullseye_amd64.deb
 RUN apt install -f -y ./wkhtmltox_0.12.6.1-2.bullseye_amd64.deb
 
