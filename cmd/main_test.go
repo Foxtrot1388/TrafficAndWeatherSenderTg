@@ -5,22 +5,33 @@ import (
 	"testing"
 
 	"github.com/Foxtrot1388/TrafficAndWeatherSenderTg/internal/config"
-	"github.com/Foxtrot1388/TrafficAndWeatherSenderTg/internal/sender/telegram"
 	task "github.com/Foxtrot1388/TrafficAndWeatherSenderTg/internal/task/Google"
 	traffic "github.com/Foxtrot1388/TrafficAndWeatherSenderTg/internal/traffic/Yandex"
 	weather "github.com/Foxtrot1388/TrafficAndWeatherSenderTg/internal/weather/OpenMeteo"
 )
 
+type sendermok struct {
+	t *testing.T
+}
+
+func (s *sendermok) SendPhoto(name, text string, bytes []byte) error {
+	s.t.Log(name, text)
+	return nil
+}
+
+func (s *sendermok) SendText(text string) error {
+	s.t.Log(text)
+	return nil
+}
+
 func TestTrafficInfo(t *testing.T) {
 
 	cfg := config.Get()
-	trafficya := traffic.New()
-	sendertg, err := telegram.New(cfg.Telegram.Token, cfg.Telegram.ChatID)
-	if err != nil {
-		t.Error(err)
-	}
 
-	err = sendTrafficInfo(context.Background(), cfg, trafficya, sendertg)
+	trafficya := traffic.New()
+	sendertg := &sendermok{t: t}
+
+	err := sendTrafficInfo(context.Background(), cfg, trafficya, sendertg)
 	if err != nil {
 		t.Error(err)
 	}
@@ -30,15 +41,12 @@ func TestTrafficInfo(t *testing.T) {
 func TestWeatherInfo(t *testing.T) {
 
 	cfg := config.Get()
+
 	weatherow, err := weather.New()
 	if err != nil {
 		t.Error(err)
 	}
-
-	sendertg, err := telegram.New(cfg.Telegram.Token, cfg.Telegram.ChatID)
-	if err != nil {
-		t.Error(err)
-	}
+	sendertg := &sendermok{t: t}
 
 	err = sendWeatherInfo(context.Background(), cfg, weatherow, sendertg)
 	if err != nil {
@@ -55,11 +63,7 @@ func TestCalendar(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-
-	sendertg, err := telegram.New(cfg.Telegram.Token, cfg.Telegram.ChatID)
-	if err != nil {
-		t.Error(err)
-	}
+	sendertg := &sendermok{t: t}
 
 	err = sendTaskInfo(context.Background(), cfg, taskg, sendertg)
 	if err != nil {

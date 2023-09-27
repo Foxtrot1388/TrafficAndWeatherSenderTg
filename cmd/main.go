@@ -49,7 +49,7 @@ func main() {
 
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	cfg := config.Get()
-	app := getApp(cfg)
+	app := newApp(cfg)
 
 	s := gocron.NewScheduler(time.UTC)
 	s.Every(1).Day().At(cfg.TimeToSend).Do(func() { do(context.Background(), cfg, app) })
@@ -57,7 +57,8 @@ func main() {
 
 }
 
-func getApp(cfg *config.Config) *application {
+// newApp create new application
+func newApp(cfg *config.Config) *application {
 
 	trafficya := traffic.New()
 
@@ -80,6 +81,7 @@ func getApp(cfg *config.Config) *application {
 
 }
 
+// do start all job in application
 func do(ctx context.Context, cfg *config.Config, app *application) {
 
 	log.Println("The time has come")
@@ -107,6 +109,7 @@ func do(ctx context.Context, cfg *config.Config, app *application) {
 
 }
 
+// startDo start curent job in apllication with error handling
 func startDo(job func() error) {
 	err := job()
 	if err != nil {
@@ -114,6 +117,7 @@ func startDo(job func() error) {
 	}
 }
 
+// sendTrafficInfo get traffic information and put to send application
 func sendTrafficInfo(ctx context.Context, cfg *config.Config, traffic trafficGeter, sendermes sender) error {
 
 	buf := bytes.NewBuffer([]byte{})
@@ -133,6 +137,7 @@ func sendTrafficInfo(ctx context.Context, cfg *config.Config, traffic trafficGet
 
 }
 
+// sendWeatherInfo get weather information and put to send application
 func sendWeatherInfo(ctx context.Context, cfg *config.Config, weather weatherGeter, sendermes sender) error {
 
 	filter, err := filterWeather(cfg)
@@ -158,6 +163,7 @@ func sendWeatherInfo(ctx context.Context, cfg *config.Config, weather weatherGet
 
 }
 
+// filterWeather get filter func for parsing weather information
 func filterWeather(cfg *config.Config) (func(time.Time) bool, error) {
 
 	curday := time.Now().Day()
@@ -179,6 +185,7 @@ func filterWeather(cfg *config.Config) (func(time.Time) bool, error) {
 
 }
 
+// sendTaskInfo get task and calendaer information and put to send application
 func sendTaskInfo(ctx context.Context, cfg *config.Config, task taskGeter, sendermes sender) error {
 
 	result, err := task.Info(ctx, cfg.Task.Caledndarid)
