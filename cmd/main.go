@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/Foxtrot1388/TrafficAndWeatherSenderTg/internal/config"
@@ -85,27 +86,33 @@ func newApp(cfg *config.Config) *application {
 func do(ctx context.Context, cfg *config.Config, app *application) {
 
 	log.Println("The time has come")
-	done := make(chan struct{})
-	defer close(done)
+	wg := &sync.WaitGroup{}
 
-	go func() {
-		startDo(func() error { return sendTrafficInfo(ctx, cfg, app.Trafficapp, app.Senderapp) })
-		done <- struct{}{}
-	}()
+	if cfg.Traffic.Enable {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			startDo(func() error { return sendTrafficInfo(ctx, cfg, app.Trafficapp, app.Senderapp) })
+		}()
+	}
 
-	go func() {
-		startDo(func() error { return sendWeatherInfo(ctx, cfg, app.Weatherapp, app.Senderapp) })
-		done <- struct{}{}
-	}()
+	if cfg.Weather.Enable {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			startDo(func() error { return sendWeatherInfo(ctx, cfg, app.Weatherapp, app.Senderapp) })
+		}()
+	}
 
-	go func() {
-		startDo(func() error { return sendTaskInfo(ctx, cfg, app.Taskapp, app.Senderapp) })
-		done <- struct{}{}
-	}()
+	if cfg.Task.Enable {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			startDo(func() error { return sendTaskInfo(ctx, cfg, app.Taskapp, app.Senderapp) })
+		}()
+	}
 
-	<-done
-	<-done
-	<-done
+	wg.Wait()
 
 }
 

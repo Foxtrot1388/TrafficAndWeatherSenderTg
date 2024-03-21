@@ -3,13 +3,16 @@ telegram:
   chat_id: 0
   token_id: ""
 traffic:
+  enable: true
   url: ""
 weather:
+  enable: true
   lat: 0.000
   lon: 0.000
   time: "09:00-20:00"
   timezone: "Asia/Vladivostok"
 task:
+  enable: true
   calendarid: ""
   clientsecret: "client_secret.json"
   token: "token.json"

@@ -15,15 +15,18 @@ type Config struct {
 		Token  string `yaml:"token_id"`
 	} `yaml:"telegram"`
 	Traffic struct {
-		URL string `yaml:"url"`
+		Enable bool   `yaml:"enable"`
+		URL    string `yaml:"url"`
 	} `yaml:"traffic"`
 	Weather struct {
+		Enable   bool    `yaml:"enable"`
 		Lat      float64 `yaml:"lat"`
 		Lon      float64 `yaml:"lon"`
 		Time     string  `yaml:"time"`
 		Timezone string  `yaml:"timezone"` // https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 	} `yaml:"weather"`
 	Task struct {
+		Enable       bool   `yaml:"enable"`
 		Caledndarid  string `yaml:"calendarid"`
 		Clientsecret string `yaml:"clientsecret"`
 		Token        string `yaml:"token"`
